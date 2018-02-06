@@ -37,7 +37,7 @@ router.get('/notes/:id', (req, res, next) => {
   const noteId = req.params.id;
   knex('note')
     .where({id: `${noteId}`})
-    .then(result => res.json(result))
+    .then(result => res.json(result[0]))
     .catch(next);
 });
 
