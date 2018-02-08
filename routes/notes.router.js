@@ -2,9 +2,11 @@
 
 const express = require('express');
 const knex = require('../knex');
+const Treeize = require('treeize');
 
 // Create an router instance (aka "mini-app")
 const router = express.Router();
+
 
 // TEMP: Simple In-Memory Database
 /* 
@@ -17,12 +19,25 @@ const notes = simDB.initialize(data);
 /* ========== GET/READ ALL NOTES ========== */
 router.get('/notes', (req, res) => {
   let { searchTerm } = req.query;
-  knex.select('note.id', 'title', 'content', 'folder_id', 'folders.name as folder_name')
+  let { tagId } = req.query;
+  knex
+    .select('note.id', 'title', 'content', 'created', 'folder_id', 'folders.name as folder_name', 'tags.name as tags_name', 'tags.id as tags_id')
     .from('note')
     .leftJoin('folders', 'note.folder_id', 'folders.id')
+    .leftJoin('notes_tags', 'note.id', 'notes_tags.note_id') 
+    .leftJoin('tags', 'tags.id', 'notes_tags.tag_id')
     .where(function () {
       if (req.query.folderId) {
         this.where('folder_id', req.query.folderId);
+      }
+    })
+    .where(function () {
+      if (tagId) {
+        const subQuery = knex.select('note.id')
+          .from('note')
+          .innerJoin('notes_tags', 'note.id', 'notes_tags.note_id')
+          .where('notes_tags.tag_id', tagId);
+        this.whereIn('note.id', subQuery);
       }
     })
     .where(function () {
@@ -32,7 +47,10 @@ router.get('/notes', (req, res) => {
     })
     .orderBy('note.id')
     .then(results => {
-      res.json(results);
+      const treeize = new Treeize();
+      treeize.grow(results);
+      const hydrated = treeize.getData();
+      res.json(hydrated);
     })
     .catch(err => {
       console.error(err);
@@ -42,11 +60,19 @@ router.get('/notes', (req, res) => {
 /* ========== GET/READ SINGLE NOTES ========== */
 router.get('/notes/:id', (req, res) => {
   const noteId = req.params.id;
-  knex.select('note.id', 'title', 'content', 'folder_id', 'folders.name as folder_name')
+  knex
+    .select('note.id', 'title', 'content', 'created', 'folder_id', 'folders.name as folder_name', 'tags.name as tags_name', 'tags.id as tags_id')
     .from('note')
     .where({'note.id': `${noteId}`})
     .leftJoin('folders', 'note.folder_id', 'folders.id')
-    .then(result => res.json(result[0]))
+    .leftJoin('notes_tags', 'note.id', 'notes_tags.note_id')
+    .leftJoin('tags', 'tags.id', 'notes_tags.tag_id')
+    .then(results => {
+      const treeize = new Treeize();
+      treeize.grow(results);
+      const hydrated = treeize.getData();
+      res.json(hydrated[0]);
+    })
     .catch(err => {
       console.error(err);
       res.sendStatus(500);
