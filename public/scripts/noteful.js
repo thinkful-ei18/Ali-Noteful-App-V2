@@ -149,7 +149,7 @@ const noteful = (function () {
         <button class="removeBtn js-folder-delete">X</button>
       </li>`);
 
-    return [showAllItem, listItems].join('');
+    return [showAllItem, ...listItems].join('');
   }
 
   function generateFolderSelect(list) {
