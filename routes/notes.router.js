@@ -12,7 +12,7 @@ router.get('/notes', (req, res, next) => {
   const folderId = req.query.folderId;
   const tagId = req.query.tagId;
 
-  knex.select('note.id', 'title', 'content', 'folder_id',
+  knex.select('note.id', 'title', 'content', 'folder_id', 'created',
     'folders.name as folder_name',
     'tags.id as tags:id', 'tags.name as tags:name')
     .from('note')
@@ -41,6 +41,9 @@ router.get('/notes', (req, res, next) => {
     .orderBy('note.id')
     .then(results => {
       const treeize = new Treeize();
+      treeize.setOptions({output: 
+        {prune: false}
+      });
       treeize.grow(results);
       const hydrated = treeize.getData();
       res.json(hydrated);
@@ -59,11 +62,11 @@ router.get('/notes/:id', (req, res, next) => {
   //   - Array Destructuring `.then(([result]) => {`
   //   - Use `.first()` instead of `.select()`
 
-  knex.select('note.id', 'title', 'content', 'folder_id',
+  knex.select('note.id', 'title', 'content', 'folder_id', 'created',
     'folders.name as folder_name',
     'tags.id as tags:id', 'tags.name as tags:name')
     .from('note')
-    .leftJoin('folders', 'notes.folder_id', 'folders.id')
+    .leftJoin('folders', 'note.folder_id', 'folders.id')
     .leftJoin('notes_tags', 'note.id', 'notes_tags.note_id')
     .leftJoin('tags', 'tags.id', 'notes_tags.tag_id')
     .where('note.id', noteId)
@@ -95,8 +98,10 @@ router.post('/notes', (req, res, next) => {
   const newItem = {
     title: title,
     content: content,
-    folder_id: folder_id
   };
+  if (folder_id) {
+    newItem.folder_id = folder_id;
+  }
   let noteId;
   knex.insert(newItem)
     .into('note')
@@ -147,7 +152,7 @@ router.put('/notes/:id', (req, res, next) => {
   const updateItem = {
     title: title,
     content: content,
-    folder_id: folder_id
+   
   };
 
   knex('note')
