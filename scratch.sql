@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS tags;
 
 CREATE TABLE tags (
   id serial PRIMARY KEY,
-  name text NOT NULL
+  name text NOT NULL UNIQUE
 );
 
 DROP TABLE IF EXISTS notes_tags;
@@ -49,3 +49,5 @@ SELECT title, tags.name, note.title, folders.name  FROM note
 RIGHT JOIN folders ON note.folder_id = folders.id
 LEFT JOIN notes_tags ON note.id = notes_tags.note_id
 LEFT JOIN tags ON notes_tags.tag_id = tags.id;
+
+ALTER TABLE tags 

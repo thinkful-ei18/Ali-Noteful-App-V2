@@ -1,10 +1,11 @@
 'use strict';
 
 const express = require('express');
+const router = express.Router();
+
 const knex = require('../knex');
 const {UNIQUE_VIOLATION} = require('pg-error-constants');
 
-const router = express.Router();
 
 //GET all tags
 router.get('/tags', (req, res, next) => {
@@ -18,11 +19,16 @@ router.get('/tags', (req, res, next) => {
 
 //GET all tags by ID
 router.get('/tags/:id', (req, res, next) => {
-  const tagId = req.params.id;
-  knex('tags')
-    .first('name', 'id')
-    .where({ id: `${tagId}` })
-    .then(result => res.json(result))
+  knex.select('id', 'name')
+    .where('id', req.params.id)
+    .from('tags')
+    .then(result => {
+      if (result) {
+        res.json(result);
+      } else {
+        next();
+      }
+    })
     .catch(next);
 });
 
@@ -53,6 +59,8 @@ router.post('/tags', (req, res, next) => {
       next(err);
     });
 });
+
+
 
 //UPDATE TAG
 router.put('/tags/:id', (req, res, next) => {

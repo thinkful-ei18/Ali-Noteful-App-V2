@@ -7,7 +7,7 @@
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Listful</title>
+  <title>Noteful</title>
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css">
   <link rel="stylesheet" href="styles/index.css">
 </head>
@@ -28,14 +28,14 @@
       </header>
       <ul class="js-folders-list"></ul>
 
-      <!-- <header>
+      <header>
         <h2>Tags</h2>
         <form id="new-tag-form" class="js-new-tag-form">
           <input type="text" class="js-new-tag-entry" placeholder="tag name">
           <button type="submit">add</button>
         </form>
       </header>
-      <ul class="js-tags-list"></ul> -->
+      <ul class="js-tags-list"></ul>
     </nav>
 
     <nav class="notes">
@@ -60,7 +60,7 @@
         <input type="text" name="note-title" class="js-note-title-entry" required placeholder="title">
         <textarea name="note-content" class="js-note-content-entry" placeholder="content"></textarea>
         <select name="folder" class="js-note-folder-entry"></select>
-        <!-- <select name="tags" class="js-note-tags-entry" multiple="multiple"></select> -->
+        <select name="tags" class="js-note-tags-entry" multiple="multiple"></select>
         <button type="submit">save</button>
       </form>
     </article>
@@ -71,8 +71,7 @@
     <div class="error-message js-error-message"></div>
   </footer>
 
-  <script src="//code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-    crossorigin="anonymous"></script>
+  <script src="//code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js" integrity="sha256-ABVkpwb9K9PxubvRrHMkk6wmWcIHUE9eBxNZLXYQ84k="
     crossorigin="anonymous"></script>
 

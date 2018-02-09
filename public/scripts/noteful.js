@@ -3,17 +3,33 @@
 
 const noteful = (function () {
 
-  function render() {    
+  function render() {
     const notesList = generateNotesList(store.notes, store.currentNote);
     $('.js-notes-list').html(notesList);
+
     const folderList = generateFolderList(store.folders, store.currentQuery);
     $('.js-folders-list').html(folderList);
+
     const folderSelect = generateFolderSelect(store.folders);
     $('.js-note-folder-entry').html(folderSelect);
+
+    const tagsList = generateTagsList(store.tags, store.currentQuery);
+    $('.js-tags-list').html(tagsList);
+
+    const tagsSelect = generateTagsSelect(store.tags);
+    $('.js-note-tags-entry').html(tagsSelect);
+
     const editForm = $('.js-note-edit-form');
     editForm.find('.js-note-title-entry').val(store.currentNote.title);
     editForm.find('.js-note-content-entry').val(store.currentNote.content);
+    //NOTE: Incoming folder id for API is `folder_id`, locally it is folderId
     editForm.find('.js-note-folder-entry').val(store.currentNote.folder_id);
+
+    editForm.find('.js-note-tags-entry').val(() => {
+      if (store.currentNote.tags) {
+        return store.currentNote.tags.map(tag => tag.id);
+      }
+    });
   }
 
   /**
@@ -26,11 +42,53 @@ const noteful = (function () {
         <button class="removeBtn js-note-delete-button">X</button>
         <div class="metadata">
             <div class="date">${moment(item.created).calendar()}</div>
+            <div class="tags">${getTagsCommaSeparated(item.tags)}</div>
           </div>
       </li>`);
     return listItems.join('');
+
+
   }
-  
+
+  function generateFolderList(list, currQuery) {
+    const showAllItem = `
+      <li data-id="" class="js-folder-item ${!currQuery.folderId ? 'active' : ''}">
+        <a href="#" class="name js-folder-link">All</a>
+      </li>`;
+
+    const listItems = list.map(item => `
+      <li data-id="${item.id}" class="js-folder-item ${currQuery.folderId === item.id ? 'active' : ''}">
+        <a href="#" class="name js-folder-link">${item.name}</a>
+        <button class="removeBtn js-folder-delete">X</button>
+      </li>`);
+
+    return [showAllItem, ...listItems].join('');
+  }
+
+  function generateFolderSelect(list) {
+    const notes = list.map(item => `<option value="${item.id}">${item.name}</option>`);
+    return '<option value="">Select Folder:</option>' + notes.join('');
+  }
+
+  function generateTagsList(list, currQuery) {
+    const showAllItem = `
+      <li data-id="" class="js-tag-item ${!currQuery.tagId ? 'active' : ''}">
+        <a href="#" class="name js-tag-link">All</a>
+      </li>`;
+
+    const listItems = list.map(item => `
+      <li data-id="${item.id}" class="js-tag-item ${currQuery.tagId === item.id ? 'active' : ''}">
+        <a href="#" class="name js-tag-link">${item.name}</a>
+        <button class="removeBtn js-tag-delete">X</button>
+      </li>`);
+    return [showAllItem, ...listItems].join('');
+  }
+
+  function generateTagsSelect(list) {
+    const notes = list.map(item => `<option value="${item.id}">${item.name}</option>`);
+    return notes.join('');
+  }
+
   /**
    * HELPERS
    */
@@ -43,7 +101,15 @@ const noteful = (function () {
     const id = $(item).closest('.js-folder-item').data('id');
     return id;
   }
-  
+
+  function getTagIdFromElement(item) {
+    const id = $(item).closest('.js-tag-item').data('id');
+    return id;
+  }
+
+  function getTagsCommaSeparated(tags) {
+    return tags ? tags.map(tag => tag.name).join(', ') : '';
+  }
 
   /**
    * NOTES EVENT LISTENERS AND HANDLERS
@@ -86,6 +152,8 @@ const noteful = (function () {
         id: store.currentNote.id,
         title: editForm.find('.js-note-title-entry').val(),
         content: editForm.find('.js-note-content-entry').val(),
+        folder_id: editForm.find('.js-note-folder-entry').val(),
+        tags: editForm.find('.js-note-tags-entry').val()
       };
 
       if (store.currentNote.id) {
@@ -125,11 +193,13 @@ const noteful = (function () {
       event.preventDefault();
       const noteId = getNoteIdFromElement(event.currentTarget);
 
-      if (noteId === store.currentNote.id) {
-        store.currentNote = {};
-      }
       api.remove(`/v2/notes/${noteId}`)
-        .then(() => api.search('/v2/notes', store.currentQuery))
+        .then(() => {
+          if (noteId === store.currentNote.id) {
+            store.currentNote = {};
+          }
+          return api.search('/v2/notes', store.currentQuery);
+        })
         .then(response => {
           store.notes = response;
           render();
@@ -137,26 +207,9 @@ const noteful = (function () {
     });
   }
 
-  function generateFolderList(list, currQuery) {
-    const showAllItem = `
-      <li data-id="" class="js-folder-item ${!currQuery.folderId ? 'active' : ''}">
-        <a href="#" class="name js-folder-link">All</a>
-      </li>`;
-
-    const listItems = list.map(item => `
-      <li data-id="${item.id}" class="js-folder-item ${currQuery.folderId === item.id ? 'active' : ''}">
-        <a href="#" class="name js-folder-link">${item.name}</a>
-        <button class="removeBtn js-folder-delete">X</button>
-      </li>`);
-
-    return [showAllItem, ...listItems].join('');
-  }
-
-  function generateFolderSelect(list) {
-    const notes = list.map(item => `<option value="${item.id}">${item.name}</option>`);
-    return '<option value="">Select Folder:</option>' + notes.join('');
-  }
-
+  /**
+   * FOLDERS EVENT LISTENERS AND HANDLERS
+   */
   function handleFolderClick() {
     $('.js-folders-list').on('click', '.js-folder-link', event => {
       event.preventDefault();
@@ -188,10 +241,13 @@ const noteful = (function () {
           store.folders = response;
           render();
         }).catch(err => {
+          console.log(err.responseJSON.message);
+
           $('.js-error-message').text(err.responseJSON.message);
         });
     });
   }
+
   function handleFolderDeleteClick() {
     $('.js-folders-list').on('click', '.js-folder-delete', event => {
       event.preventDefault();
@@ -217,17 +273,91 @@ const noteful = (function () {
     });
   }
 
+  /**
+   * TAGS EVENT LISTENERS AND HANDLERS
+   */
+  function handleTagClick() {
+    $('.js-tags-list').on('click', '.js-tag-link', event => {
+      event.preventDefault();
+
+      const tagId = getTagIdFromElement(event.currentTarget);
+      store.currentQuery.tagId = tagId;
+
+      //TODO; loop over tags, if not a match, then clear
+      store.currentNote = {};
+
+      api.search('/v2/notes', store.currentQuery)
+        .then(response => {
+          store.notes = response;
+          render();
+        });
+    });
+  }
+
+  function handleNewTagSubmit() {
+    $('.js-new-tag-form').on('submit', event => {
+      event.preventDefault();
+
+      const newTagName = $('.js-new-tag-entry').val();
+      api.create('/v2/tags', { name: newTagName })
+        .then(() => {
+          return api.search('/v2/tags');
+        }).then(response => {
+          store.tags = response;
+          render();
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    });
+  }
+
+  function handleTagDeleteClick() {
+    $('.js-tags-list').on('click', '.js-tag-delete', event => {
+      event.preventDefault();
+      const tagId = getTagIdFromElement(event.currentTarget);
+
+      if (tagId === store.currentQuery.tagId) {
+        store.currentQuery.tagId = null;
+      }
+
+      //TODO; loop over tags, if not a match, then clear
+      store.currentNote = {};
+
+      api.remove(`/v2/tags/${tagId}`)
+        .then(() => {
+          return api.search('/v2/tags');
+        })
+        .then(response => {
+          store.tags = response;
+          return api.search('/v2/notes', store.currentQuery);
+        })
+        .then(response => {
+          store.notes = response;
+          render();
+        });
+    });
+  }
+
+
+
+
+
   function bindEventListeners() {
     handleNoteItemClick();
     handleNoteSearchSubmit();
-    handleFolderClick();
+
     handleNoteFormSubmit();
     handleNoteStartNewSubmit();
     handleNoteDeleteClick();
+
+    handleFolderClick();
     handleNewFolderSubmit();
     handleFolderDeleteClick();
+    handleTagClick();
+    handleNewTagSubmit();
+    handleTagDeleteClick();
   }
-
 
   // This object contains the only exposed methods from this module:
   return {

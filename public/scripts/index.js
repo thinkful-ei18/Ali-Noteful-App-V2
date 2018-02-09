@@ -9,11 +9,17 @@ $(document).ready(function () {
       store.notes = response;
       noteful.render();
     });
+
   api.search('/v2/folders')
     .then(response => {
       store.folders = response;
       noteful.render();
     });
 
-});
+  api.search('/v2/tags')
+    .then(response => {
+      store.tags = response;
+      noteful.render();
+    });
 
+});
