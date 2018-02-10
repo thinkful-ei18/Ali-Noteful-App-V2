@@ -95,7 +95,7 @@ router.delete('/folders/:id', (req, res, next) => {
 //   let { searchTerm } = req.query;
 //   knex
 //     .select('note.id', 'title', 'content', 'folder_id', 'folders.name as folder_name')
-//     .from('note')
+//     .from('notes')
 //     .leftJoin('folders', 'note.folder_id', 'folders.id')
 //     .where(function () {
 //       if (req.query.folderId) {
@@ -120,7 +120,7 @@ router.delete('/folders/:id', (req, res, next) => {
 //   const noteId = req.params.id;
 //   knex
 //     .select('note.id', 'title', 'content', 'folder_id', 'folders.name as folder_name')
-//     .from('note')
+//     .from('notes')
 //     .leftJoin('folders', 'note.folder_id', 'folders.id')
 //     .where(function () {
 //       if (req.query.folderId) {

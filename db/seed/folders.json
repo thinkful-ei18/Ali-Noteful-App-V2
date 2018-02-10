@@ -1,0 +1,18 @@
+[
+  {
+    "id": 100,
+    "name": "Archive"
+  },
+  {
+    "id": 101,
+    "name": "Drafts"
+  },
+  {
+    "id": 102,
+    "name": "Personal"
+  },
+  {
+    "id": 103,
+    "name": "Work"
+  }
+]

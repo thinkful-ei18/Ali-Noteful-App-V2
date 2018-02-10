@@ -1,0 +1,74 @@
+[
+  {
+    "note_id": 1001,
+    "tag_id": 1
+  },
+  {
+    "note_id": 1002,
+    "tag_id": 1
+  },
+  {
+    "note_id": 1002,
+    "tag_id": 2
+  },
+  {
+    "note_id": 1003,
+    "tag_id": 1
+  },
+  {
+    "note_id": 1003,
+    "tag_id": 2
+  },
+  {
+    "note_id": "1003",
+    "tag_id": 3
+  },
+  {
+    "note_id": 1004,
+    "tag_id": 1
+  },
+  {
+    "note_id": 1004,
+    "tag_id": 2
+  },
+  {
+    "note_id": "1004",
+    "tag_id": 3
+  },
+  {
+    "note_id": 1004,
+    "tag_id": 4
+  },
+  {
+    "note_id": 1005,
+    "tag_id": 2
+  },
+  {
+    "note_id": 1006,
+    "tag_id": 2
+  },
+  {
+    "note_id": 1006,
+    "tag_id": 3
+  },
+  {
+    "note_id": "1006",
+    "tag_id": 4
+  },
+  {
+    "note_id": 1007,
+    "tag_id": 3
+  },
+  {
+    "note_id": 1008,
+    "tag_id": 3
+  },
+  {
+    "note_id": 1008,
+    "tag_id": 4
+  },
+  {
+    "note_id": 1009,
+    "tag_id": 4
+  }
+]

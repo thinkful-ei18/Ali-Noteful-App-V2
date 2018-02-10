@@ -22,6 +22,9 @@ router.get('/notes', (req, res, next) => {
     .where(function () {
       if (searchTerm) {
         this.where('title', 'like', `%${searchTerm}%`);
+        this.orWhere('content', 'like', `%${searchTerm}%`);
+        this.orWhere('folders.name', 'like', `%${searchTerm}%`);
+        this.orWhere('tags.name', 'like', `%${searchTerm}%`);
       }
     })
     .where(function () {
@@ -57,10 +60,6 @@ router.get('/notes', (req, res, next) => {
 router.get('/notes/:id', (req, res, next) => {
   const noteId = req.params.id;
 
-  // 3 variations:
-  //   - Array Item `res.json(result[0]);`
-  //   - Array Destructuring `.then(([result]) => {`
-  //   - Use `.first()` instead of `.select()`
 
   knex.select('note.id', 'title', 'content', 'folder_id', 'created',
     'folders.name as folder_name',
@@ -71,6 +70,11 @@ router.get('/notes/:id', (req, res, next) => {
     .leftJoin('tags', 'tags.id', 'notes_tags.tag_id')
     .where('note.id', noteId)
     .then(result => {
+      if(result.length === 0) {
+        const err = new Error;
+        err.status = 404;
+        next(err);
+      }
       if (result) {
         const treeize = new Treeize();
         treeize.grow(result);
@@ -97,10 +101,13 @@ router.post('/notes', (req, res, next) => {
 
   const newItem = {
     title: title,
-    content: content,
   };
+  
   if (folder_id) {
     newItem.folder_id = folder_id;
+  }
+  if (content) {
+    newItem.content = content;
   }
   let noteId;
   knex.insert(newItem)
@@ -108,9 +115,11 @@ router.post('/notes', (req, res, next) => {
     .returning('id')
     .then(([id]) => {
       noteId = id;
-      const tagsInsert = tags.map(tagId => ({ note_id: noteId, tag_id: tagId }));
-      return knex.insert(tagsInsert)
-        .into('notes_tags');
+      if(tags) {
+        const tagsInsert = tags.map(tagId => ({ note_id: noteId, tag_id: tagId }));
+        return knex.insert(tagsInsert)
+          .into('notes_tags');
+      }
     })
     .then(() => {
       return knex.select('note.id', 'title', 'content', 'folder_id',
@@ -127,13 +136,13 @@ router.post('/notes', (req, res, next) => {
         const treeize = new Treeize();
         treeize.grow(result);
         const hydrated = treeize.getData();
-        res.location(`${req.originalUrl}/${result.id}`).status(201).json(hydrated[0]);
+        res.location(`${req.originalUrl}/${result.id}`).status(201).json(hydrated[0]).done();
       } else {
         next(); // fall-through to 404 handler
       }
     })
     .catch(err => {
-      console.error(err);
+      next(err);
     });
 });
 
@@ -152,7 +161,6 @@ router.put('/notes/:id', (req, res, next) => {
   const updateItem = {
     title: title,
     content: content,
-   
   };
 
   knex('note')
@@ -164,9 +172,11 @@ router.put('/notes/:id', (req, res, next) => {
         .where('note_id', noteId);
     })
     .then(() => {
-      const tagsInsert = tags.map(tid => ({ note_id: noteId, tag_id: tid }));
-      return knex.insert(tagsInsert)
-        .into('notes_tags');
+      if (tags) {
+        const tagsInsert = tags.map(tid => ({ note_id: noteId, tag_id: tid }));
+        return knex.insert(tagsInsert)
+          .into('notes_tags');
+      }
     })
     .then(() => {
       return knex.select('note.id', 'title', 'content', 'folder_id',
@@ -179,6 +189,11 @@ router.put('/notes/:id', (req, res, next) => {
         .where('note.id', noteId);
     })
     .then(result => {
+      if (result.length === 0) {
+        const err = new Error;
+        err.status = 404;
+        next(err);
+      }
       if (result) {
         const treeize = new Treeize();
         treeize.grow(result);
@@ -189,7 +204,7 @@ router.put('/notes/:id', (req, res, next) => {
       }
     })
     .catch(err => {
-      console.error(err);
+      next(err);
     });
 });
 
