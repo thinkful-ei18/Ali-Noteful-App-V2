@@ -53,7 +53,7 @@ describe('Environment', () => {
   });
 
   it('connection should be test database', () => {
-    expect(knex.client.connectionSettings.database).to.equal('noteful-test');
+    expect(knex.client.connectionSettings.database).to.equal('noteful_test');
   });
 
   it('should return the default of 10 Notes ', function () {
