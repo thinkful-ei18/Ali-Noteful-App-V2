@@ -3,5 +3,5 @@ node_js: node
 services:
   - postgresql
 before_script:
-  - psql -c 'create database noteful_test;' -U postgres
+  - psql -c 'create database "noteful_test";' -U postgres
   - psql -U postgres -f ./db/noteful.2.sql -d noteful-test
