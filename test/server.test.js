@@ -384,3 +384,159 @@ describe('DELETE  /v2/notes/:id', function () {
   });
 
 });
+
+describe('Get folders', function () {
+
+  it('should return all folders with id and names', function () {
+    return chai.request(app)
+      .get('/v2/folders/')
+      .then( response => {
+        let res = response;
+        expect(res).to.be.json;
+      });
+
+  });
+
+  it('should return folders with id and name', function () {
+    return chai.request(app)
+      .get('/v2/folders/100')
+      .then(response => {
+        let res = response;
+        expect(res).to.be.json;
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.a('object');
+        expect(res.body).to.include.keys('id', 'name');
+      });
+
+  });
+});
+
+describe('Put folders', function () {
+
+  it('should updated folder with a new name', function () {
+    const updateItem = {
+      name: 'New test'
+    };
+    return chai.request(app)
+      .put('/v2/folders/100')
+      .send(updateItem)
+      .then( function (res) {
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
+        expect(res.body).to.be.a('object');
+        expect(res.body.name).to.equal('New test');
+        expect(res.body).to.include.keys('id', 'name');
+      });
+      
+  });
+
+  it('should respond with error when folder name not given', function () {
+    const updateItem = {
+      nam: 'New test'
+    };
+    return chai.request(app)
+      .put('/v2/folders/100')
+      .send(updateItem)
+      .catch(err => {
+        expect(err.response).to.have.status(400);
+      });
+  });
+});
+
+describe('Create a new folder', function () {
+
+  it('should create a new folder', function () {
+    const updateItem = {
+      name: 'New nom'
+    };
+    return chai.request(app)
+      .post('/v2/folders/')
+      .send(updateItem)
+      .then( res => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.a('array');
+        expect(res.body[0].name).to.equal('New nom');
+        expect(res.body[0]).to.include.keys('id', 'name');
+      });
+  });
+
+  it('should respond with error when folder name not given', function () {
+    const Item = {
+      nam: 'New test'
+    };
+    return chai.request(app)
+      .post('/v2/folders/')
+      .send(Item)
+      .catch(err => {
+        expect(err.response).to.have.status(400);
+      });
+  });
+});
+
+describe('Delete a folder', function () {
+  it('should delete a folder', function () {
+    return chai.request(app)
+      .delete('/v2/folders/100')
+      .then( res => {
+        expect(res).to.have.status(204);
+      });
+  });
+
+});
+// describe('PUT /v2/notes/:id', function () {
+
+//   it('should update the note', function () {
+//     const updateItem = {
+//       'title': 'What about dogs?!',
+//       'content': 'woof woof',
+//       'tags': []
+//     };
+//     return chai.request(app)
+//       .put('/v2/notes/1005')
+//       .send(updateItem)
+//       .then(function (res) {
+//         expect(res).to.have.status(200);
+//         expect(res).to.be.json;
+//         expect(res.body).to.be.a('object');
+//         expect(res.body).to.include.keys('id', 'title', 'content');
+
+//         expect(res.body.id).to.equal(1005);
+//         expect(res.body.title).to.equal(updateItem.title);
+//         expect(res.body.content).to.equal(updateItem.content);
+//       });
+//   });
+
+//   it('should return correct search results for a searchTerm query', function () {
+//     let res;
+//     return chai.request(app).get('/v2/notes?searchTerm=gaga')
+//       .then(function (_res) {
+//         res = _res;
+//         expect(res).to.have.status(200);
+//         expect(res).to.be.json;
+//         expect(res.body).to.be.a('array');
+//         expect(res.body).to.have.length(1);
+//         expect(res.body[0]).to.be.an('object');
+//         return knex.select().from('notes').where('title', 'like', '%gaga%');
+//       })
+//       .then(data => {
+//         expect(res.body[0].id).to.equal(data[0].id);
+//       });
+//   });
+
+//   // it('should return the default of 10 Notes ', function () {
+//   //   let count;
+//   //   return knex.count()
+//   //     .from('notes')
+//   //     .then(([result]) => {
+//   //       count = Number(result.count);
+//   //       return chai.request(app).get('/v2/notes');
+//   //     })
+//   //     .then(function (res) {
+//   //       expect(res).to.have.status(200);
+//   //       expect(res).to.be.json;
+//   //       expect(res.body).to.be.a('array');
+//   //       expect(res.body).to.have.length(count);
+//   //     });
+//   // });
+  
+// });
