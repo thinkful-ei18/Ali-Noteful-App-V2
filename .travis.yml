@@ -2,7 +2,8 @@ language: node_js
 node_js: node
 services:
   - postgresql
-
+  env:
+- NODE_ENV=test
 before_script:
-- psql -c 'create database noteful_test;' -U postgres
-- psql -U postgres -f ./db/noteful.2.sql noteful_test
+  - psql -U postgres -c 'CREATE DATABASE "noteful-test";'
+  - psql -U postgres -f ./db/noteful.2.sql -d noteful-test
