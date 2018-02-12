@@ -5,3 +5,10 @@ services:
 before_script:
 - psql -c 'CREATE DATABASE noteful_test;' -U postgres
 - psql -U postgres -f ./db/noteful.2.sql noteful_test
+deploy:
+  provider: heroku
+  api_key:
+    secure: UWuKak0Wc+tKt2aIuzmolkeUY9eE+haexzvTtnD2FsNhCh14E0qIJrqGa0CtpKMx9RGZ9j7Ju1Km2I61PSE25gHMkcFm5YANY2DJySKDFmwgooJ77sblJfFDaWUuzn1fgEf8i+cTvxNxxYY+vVbECGFAHjDVfHbEiU+wjlopdbiUg04ZHKcvNp6B/wEjRMeJWnT2WrLE5IGx6E3LdV6iPWJBm97oir3pnj0qJlgt0G1sFyBDmoRrKP6GSEpGvVnXUlwiC0kc7pNp3WW1lkvDJrp0FbBko4bz6GnpdFeCokH3RgroABnXrbAaXWkNCeURImY8C1jQY2dyPZunky1dfHuG7iYT2OiP4Jh0PdO3EaTSpS8ZJtZwTHdTD6rTARW5FqghUuFS0BSiYksdu8XCSgJDO0Prp1UylQq7mltpG08KrewZgnzDL4RcZlIoVt0Vmp2uz/i333YivH8bNSdMWJSE79amOJBgPULiAUwj7cavGuPjuaYI3l6rxZFnkLsd4Ba4lkfCRfmHyrtT7DXPCVTcfAIyx7Iu4IgZq/H6sPHlfjnATMN8Xxqf5vYTZisFUKyUjmQMrmYRn3qGtXKiJQ2h6+w7O8PHHxc8gEnDNkDNJGC/fkqX/j6fFZcH4RAf/N8klyBTnc6RQ2jG45/XhUBJJdzeUIddXy2VD6XgUFo=
+  app: Ali-Noteful-App-V2
+  on:
+    repo: thinkful-ei18/Ali-Noteful-App-V2

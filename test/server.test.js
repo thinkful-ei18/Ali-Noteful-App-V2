@@ -483,20 +483,3 @@ describe('Delete a folder', function () {
   });
 
 });
-
-before(function () {
-  // noop
-});
-
-beforeEach(function () {
-  return seedData();
-});
-
-afterEach(function () {
-  // noop
-});
-
-after(function () {
-  // destroy the connection
-  return knex.destroy();
-});
