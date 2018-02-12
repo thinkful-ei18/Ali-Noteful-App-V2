@@ -483,60 +483,20 @@ describe('Delete a folder', function () {
   });
 
 });
-// describe('PUT /v2/notes/:id', function () {
 
-//   it('should update the note', function () {
-//     const updateItem = {
-//       'title': 'What about dogs?!',
-//       'content': 'woof woof',
-//       'tags': []
-//     };
-//     return chai.request(app)
-//       .put('/v2/notes/1005')
-//       .send(updateItem)
-//       .then(function (res) {
-//         expect(res).to.have.status(200);
-//         expect(res).to.be.json;
-//         expect(res.body).to.be.a('object');
-//         expect(res.body).to.include.keys('id', 'title', 'content');
+before(function () {
+  // noop
+});
 
-//         expect(res.body.id).to.equal(1005);
-//         expect(res.body.title).to.equal(updateItem.title);
-//         expect(res.body.content).to.equal(updateItem.content);
-//       });
-//   });
+beforeEach(function () {
+  return seedData();
+});
 
-//   it('should return correct search results for a searchTerm query', function () {
-//     let res;
-//     return chai.request(app).get('/v2/notes?searchTerm=gaga')
-//       .then(function (_res) {
-//         res = _res;
-//         expect(res).to.have.status(200);
-//         expect(res).to.be.json;
-//         expect(res.body).to.be.a('array');
-//         expect(res.body).to.have.length(1);
-//         expect(res.body[0]).to.be.an('object');
-//         return knex.select().from('notes').where('title', 'like', '%gaga%');
-//       })
-//       .then(data => {
-//         expect(res.body[0].id).to.equal(data[0].id);
-//       });
-//   });
+afterEach(function () {
+  // noop
+});
 
-//   // it('should return the default of 10 Notes ', function () {
-//   //   let count;
-//   //   return knex.count()
-//   //     .from('notes')
-//   //     .then(([result]) => {
-//   //       count = Number(result.count);
-//   //       return chai.request(app).get('/v2/notes');
-//   //     })
-//   //     .then(function (res) {
-//   //       expect(res).to.have.status(200);
-//   //       expect(res).to.be.json;
-//   //       expect(res.body).to.be.a('array');
-//   //       expect(res.body).to.have.length(count);
-//   //     });
-//   // });
-  
-// });
+after(function () {
+  // destroy the connection
+  return knex.destroy();
+});
